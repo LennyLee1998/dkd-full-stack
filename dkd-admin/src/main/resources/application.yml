@@ -52,7 +52,7 @@ spring:
     # 国际化资源文件路径
     basename: i18n/messages
   profiles:
-    active: druid
+    active: druid,dev
   # 文件上传
   servlet:
     multipart:
@@ -127,3 +127,25 @@ xss:
   excludes: /system/notice
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+# alioss配置
+alioss:
+  endpoint: oss-cn-wuhan-lr.aliyuncs.com
+  bucketName: upload-2025
+  region: wuhan-lr
+
+dromara:
+  x-file-storage: #文件存储配置
+    default-platform: aliyun-oss-1 #默认使用的存储平台
+    thumbnail-suffix: ".min.jpg" #缩略图后缀，例如【.min.jpg】【.png】
+      #对应平台的配置写在这里，注意缩进要对齐
+    aliyun-oss:
+      - platform: aliyun-oss-1 # 存储平台标识
+        enable-storage: true  # 启用存储
+        access-key: ${dromara.x-file-storage.aliyun-oss.access-key}
+        secret-key: ${dromara.x-file-storage.aliyun-oss.secret-key}
+        end-point: oss-cn-wuhan-lr.aliyuncs.com
+        bucket-name: upload-2025
+        domain: https://upload-2025.oss-cn-wuhan-lr.aliyuncs.com/
+        base-path: dkd-images/ # 基础路径
+

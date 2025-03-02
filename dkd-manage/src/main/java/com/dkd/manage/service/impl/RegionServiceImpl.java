@@ -70,11 +70,16 @@ public class RegionServiceImpl implements IRegionService
      * @return 结果
      */
     @Override
+    //rollbackFor = Exception.class  指定了当方法抛出 Exception 及其子类异常时，事务应该回滚
+    @Transactional(rollbackFor = Exception.class)
     public int updateRegion(Region region)
     {
-        
+        //先更新region信息
         region.setUpdateTime(DateUtils.getNowDate());
         int result = regionMapper.updateRegion(region);
+
+        //同步更新emp表regionName
+        int n = empMapper.updateByRegionId(region.getRegionName(), region.getId());
         return result;
     }
 
