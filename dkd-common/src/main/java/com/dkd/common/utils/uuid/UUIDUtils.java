@@ -29,7 +29,9 @@ public class UUIDUtils {
             String str = uuid.substring(i * 4, i * 4 + 4);
             // 将当前组的4个字符转换为16进制整数
             int x = Integer.parseInt(str, 16);
-            // 使用该整数对预定义的字符集取模，并将结果字符添加到短UUID字符串中
+            // 使用该整数对预定义的字符集取模，并将结果字符添加到短UUID字符串中, 取余
+            //0x3E 是十六进制表示的62, 将整数除以62并取余数。这样做可以确保结果是一个从0到61之间的整数，
+            // 从而使得这个值可以安全地用作数组 chars 的索引。
             shortBuffer.append(chars[x % 0x3E]);
         }
         // 返回处理后的8位字符UUID字符串

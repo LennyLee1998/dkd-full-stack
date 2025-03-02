@@ -123,6 +123,13 @@
           <el-button
             link
             type="primary"
+            @click="getNodeInfo(scope.row)"
+            v-hasPermi="['manage:vm:list']"
+            >查看详情</el-button
+          >
+          <el-button
+            link
+            type="primary"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:node:edit']"
             >修改</el-button
@@ -197,6 +204,30 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 点位详情对话框 -->
+    <el-dialog :title="title" v-model="infoOpen" width="800px" append-to-body>
+      <el-table :data="vmList" style="width: 100%">
+            <el-table-column type="index" label="序号" width="180" align="center"/>
+            <el-table-column prop="innerCode" label="设备编号" width="180" align="center"/>
+            <el-table-column prop="vmStatus" label="设备状态" align="center">
+              <template #default="scope">
+                <dict-tag :options="vm_status" :value="scope.row.vmStatus" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="lastSupplyTime" label="最后一次供货时间" align="center">
+              <template #default="scope">
+                {{ parseTime(scope.row.lastSupplyTime) }}
+              </template>
+            </el-table-column>
+          </el-table>
+      <template #footer>
+        <!-- <div class="dialog-footer">
+          <el-button type="primary" @click="submitCheckCheck">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
+        </div> -->
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -211,7 +242,8 @@ import {
 import { listRegion } from "@/api/manage/region";
 import { listPartner } from "@/api/manage/partner";
 import { loadAllParams } from "@/api/page";
-import { onActivated } from "vue";
+import { onActivated, ref } from "vue";
+import { listVm } from "@/api/manage/vm";
 
 const { proxy } = getCurrentInstance();
 const { node_business_type } = proxy.useDict("node_business_type");
@@ -255,6 +287,18 @@ const { queryParams, form, rules } = toRefs(data);
 const regionList = ref([]);
 
 const partnerList = ref([]);
+
+/**获取点位的设备详情 */
+const { vm_status } = proxy.useDict("vm_status");
+const vmList = ref([]);
+const infoOpen = ref(false);
+async function getNodeInfo(row) {
+  const nodeId = row.id;
+  const vmListRef = await listVm({ ...loadAllParams, nodeId });
+  vmList.value = vmListRef.rows;
+  title.value = "点位详情";
+  infoOpen.value = true;
+}
 
 /**查询区域列表 */
 function getRegionList() {
