@@ -115,6 +115,13 @@
           <el-button
             link
             type="primary"
+            @click="handlePolicy(scope.row)"
+            v-hasPermi="['manage:vm:edit']"
+            >策略</el-button
+          >
+          <el-button
+            link
+            type="primary"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['manage:vm:edit']"
             >修改</el-button
@@ -203,6 +210,28 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 策略管理对话框 -->
+    <el-dialog :title="title" v-model="policyOpen" width="500px" append-to-body>
+      <el-form ref="vmRef" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="选择策略:" prop="policyId">
+          <el-select v-model="form.policyId">
+            <el-option
+              v-for="item in policyList"
+              :key="item.policyId"
+              :value="item.policyId"
+              :label="item.policyName"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -213,6 +242,8 @@ import { listVmType } from "@/api/manage/vmType";
 import { loadAllParams } from "@/api/page";
 import { listNode } from "@/api/manage/node";
 import { listRegion } from "@/api/manage/region";
+import { listPolicy } from "@/api/manage/policy";
+import { onActivated, ref } from "vue";
 
 const { proxy } = getCurrentInstance();
 const { vm_status } = proxy.useDict("vm_status");
@@ -256,6 +287,20 @@ const vmTypeList = ref([]);
 const nodeList = ref([]);
 const regionList = ref([]);
 
+/**策略管理 */
+const policyList = ref([]);
+const policyOpen = ref(false);
+async function handlePolicy(row) {
+  reset();
+  //获取所有策略
+  const policyListRes = await listPolicy(loadAllParams);
+  policyList.value = policyListRes.rows;
+  form.value.policyId = row.policyId;
+  form.value.id = row.id;
+  title.value = "策略管理";
+  policyOpen.value = true;
+}
+
 /** 查询设备管理列表 */
 async function getList() {
   loading.value = true;
@@ -277,6 +322,7 @@ async function getList() {
 // 取消按钮
 function cancel() {
   open.value = false;
+  policyOpen.value = false; //关闭策略对话框
   reset();
 }
 
@@ -350,6 +396,7 @@ function submitForm() {
         updateVm(form.value).then((response) => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
+          policyOpen.value = false;
           getList();
         });
       } else {

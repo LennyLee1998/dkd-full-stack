@@ -1,26 +1,24 @@
 package com.dkd.manage.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.dkd.common.constant.DkdContants;
 import com.dkd.common.utils.DateUtils;
 import com.dkd.common.utils.uuid.UUIDUtils;
 import com.dkd.manage.domain.Channel;
 import com.dkd.manage.domain.Node;
+import com.dkd.manage.domain.VendingMachine;
 import com.dkd.manage.domain.VmType;
-import com.dkd.manage.mapper.ChannelMapper;
-import com.dkd.manage.mapper.NodeMapper;
+import com.dkd.manage.mapper.VendingMachineMapper;
 import com.dkd.manage.mapper.VmTypeMapper;
 import com.dkd.manage.service.IChannelService;
 import com.dkd.manage.service.INodeService;
+import com.dkd.manage.service.IVendingMachineService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.dkd.manage.mapper.VendingMachineMapper;
-import com.dkd.manage.domain.VendingMachine;
-import com.dkd.manage.service.IVendingMachineService;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 设备管理Service业务层处理
@@ -120,9 +118,11 @@ public class VendingMachineServiceImpl implements IVendingMachineService {
   public int updateVendingMachine(VendingMachine vendingMachine) {
     //查询点位表,补充区域 点位 合作商
     Long nodeId = vendingMachine.getNodeId();
-    Node node = nodeService.selectNodeById(nodeId);
-    BeanUtils.copyProperties(node, vendingMachine, "id", "createTime"); //商圈类型 区域 合作商
-    vendingMachine.setAddr(node.getAddress()); //设备地址
+    if (nodeId != null) {
+      Node node = nodeService.selectNodeById(nodeId);
+      BeanUtils.copyProperties(node, vendingMachine, "id", "createTime"); //商圈类型 区域 合作商
+      vendingMachine.setAddr(node.getAddress()); //设备地址
+    }
     vendingMachine.setUpdateTime(DateUtils.getNowDate()); //更新时间
     return vendingMachineMapper.updateVendingMachine(vendingMachine);
   }
